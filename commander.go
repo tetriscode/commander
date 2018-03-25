@@ -1,26 +1,36 @@
 package main
 
 import (
-	"time"
+	"log"
+	"os"
+	"os/signal"
+	"syscall"
 
-	"github.com/google/uuid"
+	"github.com/tetriscode/commander/rest"
 )
-
-type Command struct {
-	ID        uuid.UUID
-	Action    string
-	Data      map[string]interface{}
-	Timestamp time.Time
-	Topic     string
-	Partition int
-	Offset    int64
-	Children  uuid.UUID
-}
-
-type Event struct {
-	Parent *Command
-}
 
 func main() {
 
+	r := rest.NewRestServer()
+
+	var restErr error
+	go func() {
+		restErr = r.Start()
+		if restErr != nil {
+			log.Panic(restErr)
+		}
+	}()
+
+	sigchan := make(chan os.Signal, 1)
+	signal.Notify(sigchan, syscall.SIGINT, syscall.SIGTERM)
+
+	running := true
+	for running == true {
+		select {
+		case sig := <-sigchan:
+			r.Stop(restErr)
+			log.Printf("Caught signal %v\n", sig)
+			running = false
+		}
+	}
 }

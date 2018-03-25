@@ -21,6 +21,8 @@ func NewRestServer() *RestServer {
 		Handler: router,
 	}, router: router}
 
+	restServer.MakeCommandRoutes()
+
 	return restServer
 }
 
@@ -46,23 +48,26 @@ func (s *RestServer) Stop(err error) {
 	}
 }
 
-func (c *gin.Context) responseOK(res interface{}) {
-	c.response("ok", http.StatusOK, nil, res)
+func responseOK(c *gin.Context, res interface{}) {
+	response(c, "ok", http.StatusOK, nil, res)
 }
 
-func (c *gin.Context) responseNotFound(msgs []string) {
-	c.response("not found", http.StatusNotFound, msgs, nil)
+func responseNotFound(c *gin.Context, msgs []string) {
+	response(c, "not found", http.StatusNotFound, msgs, nil)
 }
 
-func (c *gin.Context) responseInternalError(msgs []string) {
-	c.response("internal error", http.StatusInternalServerError, msgs, nil)
+func responseInternalError(c *gin.Context, msgs []string) {
+	response(c, "internal error", http.StatusInternalServerError, msgs, nil)
 }
 
-func (c *gin.Context) responseCreated(result interface{}) {
-	c.response("created", http.StatusCreated, nil, result)
+func responseBadRequest(c *gin.Context, msgs []string) {
+	response(c, "bad request", http.StatusBadRequest, msgs, nil)
+}
+func responseCreated(c *gin.Context, result interface{}) {
+	response(c, "created", http.StatusCreated, nil, result)
 }
 
-func (c *gin.Context) response(status string, code int, messages []string, result interface{}) {
+func response(c *gin.Context, status string, code int, messages []string, result interface{}) {
 	c.JSON(code, gin.H{"status": status, "code": code,
 		"messages": messages, "result": result})
 }
