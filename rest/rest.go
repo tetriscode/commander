@@ -46,3 +46,24 @@ func (s *RestServer) Stop(err error) {
 		log.Println(err)
 	}
 }
+
+func (c *gin.Context) responseOK(res interface{}) {
+	c.response("ok", http.StatusOK, nil, res)
+}
+
+func (c *gin.Context) responseNotFound(msgs []string) {
+	c.response("not found", http.StatusNotFound, msgs, nil)
+}
+
+func (c *gin.Context) responseInternalError(msgs []string) {
+	c.response("internal error", http.StatusInternalServerError, msgs, nil)
+}
+
+func (c *gin.Context) responseCreated(result interface{}) {
+	c.response("created", http.StatusCreated, nil, result)
+}
+
+func (c *gin.Context) response(status string, code int, messages []string, result interface{}) {
+	c.JSON(gin.H{"status": status, "code": code,
+		"messages": messages, "result": result})
+}
