@@ -24,14 +24,13 @@ func NewRestServer() *RestServer {
 	return restServer
 }
 
+//Start will run the configured REST Server
 func (s *RestServer) Start() error {
 	log.Print("Starting HTTP Server")
-	if err := s.server.ListenAndServe(); err != nil {
-		return err
-	}
-	return nil
+	return s.server.ListenAndServe()
 }
 
+//Stop will shutdown the REST Server
 func (s *RestServer) Stop(err error) {
 	if err != nil {
 		log.Println(err)
@@ -64,6 +63,6 @@ func (c *gin.Context) responseCreated(result interface{}) {
 }
 
 func (c *gin.Context) response(status string, code int, messages []string, result interface{}) {
-	c.JSON(gin.H{"status": status, "code": code,
+	c.JSON(code, gin.H{"status": status, "code": code,
 		"messages": messages, "result": result})
 }

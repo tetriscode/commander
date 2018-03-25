@@ -19,7 +19,7 @@ func getCommand() func(*gin.Context) {
 }
 
 func createCommand() func(*gin.Context) {
-	return func(c *ginContext) {
+	return func(c *gin.Context) {
 		var c Command
 		c.responseCreated()
 	}
