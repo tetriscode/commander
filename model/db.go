@@ -7,18 +7,19 @@ import (
 )
 
 type Command struct {
+	ID        uuid.UUID              `json:"id,omitempty"`
+	Action    string                 `json:"action"`
+	Data      map[string]interface{} `json:"data"`
+	Timestamp time.Time              `json:"timestamp"`
+	Children  uuid.UUID              `json:"children_id"`
+}
+
+type Event struct {
 	ID        uuid.UUID              `json:"id"`
 	Action    string                 `json:"action"`
 	Data      map[string]interface{} `json:"data"`
 	Timestamp time.Time              `json:"timestamp"`
-	Topic     string
-	Partition int
-	Offset    int64
-	Children  uuid.UUID
-}
-
-type Event struct {
-	Parent *Command
+	Parent    uuid.UUID              `json:"parent_id"`
 }
 
 type DB struct {
