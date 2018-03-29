@@ -1,44 +1,57 @@
 package queue
 
-import "github.com/confluentinc/confluent-kafka-go/kafka"
+import (
+	"fmt"
+	"log"
+	"os"
+	"os/signal"
+	"syscall"
+
+	"github.com/confluentinc/confluent-kafka-go/kafka"
+	"github.com/tetriscode/commander/model"
+	"github.com/tetriscode/signal-go/utils"
+)
 
 type kafkaConsumer struct {
-	c *kafka.Consumer
-	topic string
+	c         *kafka.Consumer
+	isRunning bool
+	topic     string
 }
 
 type kafkaProducer struct {
-	p *kafka.Producer
+	p     *kafka.Producer
 	topic string
 }
 
 func NewKafkaConsumer(topic string) Consumer {
-	c := kafka.NewConsumer(&kafka.COnfigMap{
-		"bootstrap.servers":               config.BootstrapServers,
-		"group.id":                        groupID,
+	c, err := kafka.NewConsumer(&kafka.ConfigMap{
+		"bootstrap.servers":               "localhost:9092",
+		"group.id":                        "commander",
 		"session.timeout.ms":              6000,
 		"go.events.channel.enable":        true,
 		"go.application.rebalance.enable": true,
-		"default.topic.config":            kafka.ConfigMap{"auto.offset.reset": "earliest"}
-	})
-
-	return &kafkaConsumer{c,topic}
+		"default.topic.config":            kafka.ConfigMap{"auto.offset.reset": "earliest"}})
+	if err != nil {
+		fmt.Printf("%s", err.Error())
+		return nil
+	}
+	return &kafkaConsumer{c, false, topic}
 }
 
-func (k *kafkaConsumer) StartConsumer() {
-	err := k.c.SubscribeTopics([]string[k.topic],nil)
+func (k *kafkaConsumer) StartConsumer(receivedChan chan *kafka.Message) {
+	err := k.c.SubscribeTopics([]string{k.topic}, nil)
 	if err != nil {
-		log.Fatal("Failed to subscribe to topic:%s\n", k.topic)
+		log.Fatalf("Failed to subscribe to topic:%s\n", k.topic)
 	}
 	sigchan := make(chan os.Signal, 1)
 	signal.Notify(sigchan, syscall.SIGINT, syscall.SIGTERM)
 
-	running := true
-	for running == true {
+	k.isRunning = true
+	for k.isRunning == true {
 		select {
 		case sig := <-sigchan:
 			utils.Logger.Printf("Caught signal %v: terminating kafka consumer: %s on: %s\n", sig, k.c, k.topic)
-			running = false
+			k.isRunning = false
 		case evt := <-k.c.Events():
 			switch e := evt.(type) {
 			case kafka.AssignedPartitions:
@@ -49,19 +62,51 @@ func (k *kafkaConsumer) StartConsumer() {
 				receivedChan <- e
 			case kafka.Error:
 				log.Printf("%% Error: %v\n", e)
-				running = false
+				k.isRunning = false
 			}
 		}
 	}
+	k.c.Close()
 }
 
 func (k *kafkaConsumer) StopConsumer() {
+	if k.isRunning {
+		k.isRunning = false
+	}
 }
 
-func (k *kafkaProducer) StartProducer() {
-
+func NewKafkaProducer() kafkaProducer {
+	return kafkaProducer{kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": "kafka:9092"})}
 }
 
-func (k *kafkaProducer) StopProducer() {
+func (k *kafkaProducer) SendCommand(cmd model.Command) error {
+	return k.sendMessage(k.topic, []byte(key), cmd...)
+}
 
+func (k *kafkaProducer) SendEvent(key string, evt model.Event) error {
+	return k.sendMessage(k.topic, []byte(key), evt...)
+}
+
+func (k *kafkaProducer) sendMessage(topic string, key, value []byte) error {
+	deliveryChan := make(chan kafka.Event)
+	err := k.p.Produce(&kafka.Message{TopicPartition: kafka.TopicPartition{
+		Topic:     &topic,
+		Partition: kafka.PartitionAny}, Key: key, Value: value},
+		deliveryChan)
+
+	if err != nil {
+		return err
+	}
+
+	del := <-deliveryChan
+	msg := del.(*kafka.Message)
+
+	defer close(deliveryChan)
+
+	if msg.TopicPartition.Error != nil {
+		log.Printf("Delivery failed: %v\n", msg.TopicPartition.Error)
+		return msg.TopicPartition.Error
+	}
+
+	return nil
 }
