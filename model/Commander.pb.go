@@ -3,7 +3,7 @@
 // DO NOT EDIT!
 
 /*
-Package proto is a generated protocol buffer package.
+Package model is a generated protocol buffer package.
 
 It is generated from these files:
 	Commander.proto
@@ -18,20 +18,20 @@ It has these top-level messages:
 	PagingInfo
 	StreamRequest
 */
-package proto
+package model
 
-import proto1 "github.com/golang/protobuf/proto"
+import proto "github.com/golang/protobuf/proto"
 import google_protobuf "google/protobuf/struct.pb"
 
 // Reference imports to suppress errors if they are not otherwise used.
-var _ = proto1.Marshal
+var _ = proto.Marshal
 
 type UUID struct {
 	Value string `protobuf:"bytes,1,opt,name=value" json:"value,omitempty"`
 }
 
 func (m *UUID) Reset()         { *m = UUID{} }
-func (m *UUID) String() string { return proto1.CompactTextString(m) }
+func (m *UUID) String() string { return proto.CompactTextString(m) }
 func (*UUID) ProtoMessage()    {}
 
 type CommandParams struct {
@@ -41,7 +41,7 @@ type CommandParams struct {
 }
 
 func (m *CommandParams) Reset()         { *m = CommandParams{} }
-func (m *CommandParams) String() string { return proto1.CompactTextString(m) }
+func (m *CommandParams) String() string { return proto.CompactTextString(m) }
 func (*CommandParams) ProtoMessage()    {}
 
 func (m *CommandParams) GetData() *google_protobuf.Struct {
@@ -63,7 +63,7 @@ type Command struct {
 }
 
 func (m *Command) Reset()         { *m = Command{} }
-func (m *Command) String() string { return proto1.CompactTextString(m) }
+func (m *Command) String() string { return proto.CompactTextString(m) }
 func (*Command) ProtoMessage()    {}
 
 func (m *Command) GetId() *UUID {
@@ -95,7 +95,7 @@ type PagedCommands struct {
 }
 
 func (m *PagedCommands) Reset()         { *m = PagedCommands{} }
-func (m *PagedCommands) String() string { return proto1.CompactTextString(m) }
+func (m *PagedCommands) String() string { return proto.CompactTextString(m) }
 func (*PagedCommands) ProtoMessage()    {}
 
 func (m *PagedCommands) GetCommands() []*Command {
@@ -117,7 +117,7 @@ type Event struct {
 }
 
 func (m *Event) Reset()         { *m = Event{} }
-func (m *Event) String() string { return proto1.CompactTextString(m) }
+func (m *Event) String() string { return proto.CompactTextString(m) }
 func (*Event) ProtoMessage()    {}
 
 func (m *Event) GetId() *UUID {
@@ -149,7 +149,7 @@ type PagedEvents struct {
 }
 
 func (m *PagedEvents) Reset()         { *m = PagedEvents{} }
-func (m *PagedEvents) String() string { return proto1.CompactTextString(m) }
+func (m *PagedEvents) String() string { return proto.CompactTextString(m) }
 func (*PagedEvents) ProtoMessage()    {}
 
 func (m *PagedEvents) GetEvents() []*Event {
@@ -165,14 +165,14 @@ type PagingInfo struct {
 }
 
 func (m *PagingInfo) Reset()         { *m = PagingInfo{} }
-func (m *PagingInfo) String() string { return proto1.CompactTextString(m) }
+func (m *PagingInfo) String() string { return proto.CompactTextString(m) }
 func (*PagingInfo) ProtoMessage()    {}
 
 type StreamRequest struct {
 }
 
 func (m *StreamRequest) Reset()         { *m = StreamRequest{} }
-func (m *StreamRequest) String() string { return proto1.CompactTextString(m) }
+func (m *StreamRequest) String() string { return proto.CompactTextString(m) }
 func (*StreamRequest) ProtoMessage()    {}
 
 func init() {

@@ -8,7 +8,7 @@ import (
 	"syscall"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
-	"github.com/tetriscode/commander/model"
+	"github.com/tetriscode/commander/proto"
 	"github.com/tetriscode/signal-go/utils"
 )
 
@@ -79,15 +79,33 @@ func NewKafkaProducer() kafkaProducer {
 	return kafkaProducer{kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": "kafka:9092"})}
 }
 
-func (k *kafkaProducer) SendCommand(cmd model.Command) error {
-	return k.sendMessage(k.topic, []byte(key), cmd...)
+func (k *kafkaProducer) SendCommand(cmd *proto.Command) error {
+	msg, err := k.sendMessage(k.topic, []byte(key), cmd...)
+	if err != nil {
+		return err
+	}
+	cmd.Timestamp = msg.Timestamp
+	cmd.Topic = msg.TopicPartition.Topic
+	cmd.Partition = msg.TopicPartition.Partition
+	cmd.Offset = msg.TopicPartition.Offset
+	cmd.Id = string(msg.Key)
+	return nil
 }
 
-func (k *kafkaProducer) SendEvent(key string, evt model.Event) error {
-	return k.sendMessage(k.topic, []byte(key), evt...)
+func (k *kafkaProducer) SendEvent(evt *proto.Event) error {
+	msg, err := k.sendMessage(k.topic, []byte(key), evt...)
+	if err != nil {
+		return err
+	}
+	evt.Timestamp = msg.Timestamp
+	evt.Topic = msg.TopicPartition.Topic
+	evt.Partition = msg.TopicPartition.Partition
+	evt.Offset = msg.TopicPartition.Offset
+	evt.Id = string(msg.Key)
+	return nil
 }
 
-func (k *kafkaProducer) sendMessage(topic string, key, value []byte) error {
+func (k *kafkaProducer) sendMessage(topic string, key, value []byte) (*kafka.Message, error) {
 	deliveryChan := make(chan kafka.Event)
 	err := k.p.Produce(&kafka.Message{TopicPartition: kafka.TopicPartition{
 		Topic:     &topic,
@@ -95,7 +113,7 @@ func (k *kafkaProducer) sendMessage(topic string, key, value []byte) error {
 		deliveryChan)
 
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	del := <-deliveryChan
@@ -105,8 +123,8 @@ func (k *kafkaProducer) sendMessage(topic string, key, value []byte) error {
 
 	if msg.TopicPartition.Error != nil {
 		log.Printf("Delivery failed: %v\n", msg.TopicPartition.Error)
-		return msg.TopicPartition.Error
+		return nil, msg.TopicPartition.Error
 	}
 
-	return nil
+	return msg, nil
 }
