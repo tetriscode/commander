@@ -1,9 +1,0 @@
-syntax = "proto3";
-
-option go_package = "golang";
-
-// Command from a client.
-message Command {
-  string action = 1;
-  bytes data = 2;
-}
