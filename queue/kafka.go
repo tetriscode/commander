@@ -8,7 +8,7 @@ import (
 	"syscall"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
-	"github.com/tetriscode/commander/proto"
+	"github.com/tetriscode/commander/model"
 	"github.com/tetriscode/signal-go/utils"
 )
 
@@ -79,7 +79,7 @@ func NewKafkaProducer() kafkaProducer {
 	return kafkaProducer{kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": "kafka:9092"})}
 }
 
-func (k *kafkaProducer) SendCommand(cmd *proto.Command) error {
+func (k *kafkaProducer) SendCommand(cmd *model.Command) error {
 	msg, err := k.sendMessage(k.topic, []byte(key), cmd...)
 	if err != nil {
 		return err
@@ -92,7 +92,7 @@ func (k *kafkaProducer) SendCommand(cmd *proto.Command) error {
 	return nil
 }
 
-func (k *kafkaProducer) SendEvent(evt *proto.Event) error {
+func (k *kafkaProducer) SendEvent(evt *model.Event) error {
 	msg, err := k.sendMessage(k.topic, []byte(key), evt...)
 	if err != nil {
 		return err
