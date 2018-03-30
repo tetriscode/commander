@@ -21,7 +21,7 @@ It has these top-level messages:
 package model
 
 import proto "github.com/golang/protobuf/proto"
-import google_protobuf "google/protobuf/struct.pb"
+import google_protobuf "github.com/golang/protobuf/ptypes/struct"
 
 // Reference imports to suppress errors if they are not otherwise used.
 var _ = proto.Marshal

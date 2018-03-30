@@ -8,8 +8,7 @@ import (
 	"syscall"
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
-	"github.com/tetriscode/commander/proto"
-	"github.com/tetriscode/signal-go/utils"
+	"github.com/tetriscode/commander/model"
 )
 
 type kafkaConsumer struct {
@@ -50,7 +49,7 @@ func (k *kafkaConsumer) StartConsumer(receivedChan chan *kafka.Message) {
 	for k.isRunning == true {
 		select {
 		case sig := <-sigchan:
-			utils.Logger.Printf("Caught signal %v: terminating kafka consumer: %s on: %s\n", sig, k.c, k.topic)
+			log.Printf("Caught signal %v: terminating kafka consumer: %s on: %s\n", sig, k.c, k.topic)
 			k.isRunning = false
 		case evt := <-k.c.Events():
 			switch e := evt.(type) {
@@ -79,7 +78,7 @@ func NewKafkaProducer() kafkaProducer {
 	return kafkaProducer{kafka.NewProducer(&kafka.ConfigMap{"bootstrap.servers": "kafka:9092"})}
 }
 
-func (k *kafkaProducer) SendCommand(cmd *proto.Command) error {
+func (k *kafkaProducer) SendCommand(cmd *model.Command) error {
 	msg, err := k.sendMessage(k.topic, []byte(key), cmd...)
 	if err != nil {
 		return err
@@ -92,7 +91,7 @@ func (k *kafkaProducer) SendCommand(cmd *proto.Command) error {
 	return nil
 }
 
-func (k *kafkaProducer) SendEvent(evt *proto.Event) error {
+func (k *kafkaProducer) SendEvent(evt *model.Event) error {
 	msg, err := k.sendMessage(k.topic, []byte(key), evt...)
 	if err != nil {
 		return err
