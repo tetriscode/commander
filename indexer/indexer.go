@@ -37,10 +37,10 @@ func (i *Indexer) Stop(err error) {
 	i.Consumer.StopConsumer()
 
 
-func (i *Indexer) recordCommand(c *proto.Command) {
+func (i *Indexer) recordCommand(c *proto.Command) error {
 	return i.db.CreateCommand(c)
 }
 
-func recordEvent(e *proto.Event) {
+func recordEvent(e *proto.Event) error {
 	return i.db.CreateEvent(e)
 }

@@ -9,7 +9,7 @@ func (r *RestServer) MakeEventRoutes() {
 	r.router.GET("/events/:cid", getEvent())
 }
 
-func getCommand() func(*gin.Context) {
+func getEvent() func(*gin.Context) {
 	return func(c *gin.Context) {
 		responseOK(c, &model.Event{Action: "test_action", Topic: "events"})
 	}
