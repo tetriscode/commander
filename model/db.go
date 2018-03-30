@@ -7,26 +7,27 @@ import (
 	"github.com/pkg/errors"
 )
 
-type googleDS struct {
-}
-
-func init() {
-	ctx := context.Background()
-
-	dsClient, err := datastore.NewClient(ctx, googleProject)
-	if err != nil {
-		return errors.Wrap(err, "failed to create datastore client")
-	}
-}
+const googleProject = "rafter-197703"
 
 //DB holds db conn info
 type DB struct {
+	ctx    context.Context
+	client *datastore.Client
 }
 
 //NewDB constructs a new DB
-func NewDB() *DB {
+func NewDB() (*DB, error) {
+	ctx := context.Background()
 
-	return nil
+	client, err := datastore.NewClient(ctx, googleProject)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to create datastore client")
+	}
+
+	return &DB{
+		ctx:    ctx,
+		client: client,
+	}, nil
 }
 
 //Start the DB component
@@ -51,10 +52,10 @@ const (
 )
 
 // CreateCommand creates a Command entity and stores it in datastore
-func CreateCommand(command proto.Command) error {
+func (db *DB) CreateCommand(command Command) error {
 	entity := command
-	k = datastore.IDKey(KindTypeCommand, command.Id, nil)
-	_, err = dsClient.Put(ctx, k, e)
+	k := datastore.NameKey(string(KindTypeCommand), (command.Id).String(), nil)
+	_, err := db.client.Put(db.ctx, k, entity)
 	if err != nil {
 		return errors.Wrapf(err, "failed to put %s %s to datastore", KindTypeCommand, command.Id)
 	}
@@ -62,9 +63,10 @@ func CreateCommand(command proto.Command) error {
 }
 
 // CreateEvent creates en Event entity and stores it in datastore
-func CreateEvent(event proto.Event) error {
-	k = datastore.IDKey(KindTypeEvent, event.Id, nil)
-	_, err = dsClient.Put(ctx, k, e)
+func (db *DB) CreateEvent(event Event) error {
+	entity := event
+	k := datastore.NameKey(string(KindTypeEvent), (event.Id).String(), nil)
+	_, err := db.client.Put(db.ctx, k, entity)
 	if err != nil {
 		return errors.Wrapf(err, "failed to put %s %s to datastore", KindTypeEvent, event.Id)
 	}

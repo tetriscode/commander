@@ -9,7 +9,6 @@ import (
 
 	"github.com/confluentinc/confluent-kafka-go/kafka"
 	"github.com/tetriscode/commander/model"
-	"github.com/tetriscode/signal-go/utils"
 )
 
 type kafkaConsumer struct {
@@ -50,7 +49,7 @@ func (k *kafkaConsumer) StartConsumer(receivedChan chan *kafka.Message) {
 	for k.isRunning == true {
 		select {
 		case sig := <-sigchan:
-			utils.Logger.Printf("Caught signal %v: terminating kafka consumer: %s on: %s\n", sig, k.c, k.topic)
+			log.Printf("Caught signal %v: terminating kafka consumer: %s on: %s\n", sig, k.c, k.topic)
 			k.isRunning = false
 		case evt := <-k.c.Events():
 			switch e := evt.(type) {

@@ -1,21 +1,15 @@
 package main
 
 import (
-	"context"
 	"log"
 	"os"
 	"os/signal"
 	"syscall"
 
-	"cloud.google.com/go/datastore"
-	"github.com/pkg/errors"
 	"github.com/tetriscode/commander/rest"
 )
 
-const googleProject = "rafter-197703"
-
 func main() {
-	ctx := context.Background()
 	r := rest.NewRestServer()
 
 	var restErr error
@@ -37,10 +31,5 @@ func main() {
 			log.Printf("Caught signal %v\n", sig)
 			running = false
 		}
-	}
-
-	dsClient, err := datastore.NewClient(ctx, googleProject)
-	if err != nil {
-		errors.Wrap(err, "failed to create datastore client")
 	}
 }

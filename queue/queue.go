@@ -1,12 +1,12 @@
 package queue
 
-import "github.com/tetriscode/commander/proto"
+import "github.com/tetriscode/commander/model"
 
 //Producer is an abstraction over the queue impl
 type Producer interface {
 	NewProducer()
-	SendCommand(*proto.Command)
-	SendEvent(*proto.Event)
+	SendCommand(*model.Command)
+	SendEvent(*model.Event)
 }
 
 //Consumer is an abstraction over the queue impl
