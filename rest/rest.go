@@ -7,21 +7,25 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/tetriscode/commander/queue"
 )
 
 type RestServer struct {
 	server *http.Server
 	router *gin.Engine
+	queue  Queue
 }
 
-func NewRestServer() *RestServer {
+func NewRestServer(q queue.Queue) *RestServer {
 	router := gin.Default()
 	restServer := &RestServer{server: &http.Server{
 		Addr:    ":8080",
 		Handler: router,
-	}, router: router}
+	}, router: router,
+		queue: q}
 
 	restServer.MakeCommandRoutes()
+	restServer.MakeEventRoutes()
 
 	return restServer
 }
