@@ -21,13 +21,14 @@ func (i *Indexer) Start() error {
 	log.Printf("Starting Indexer")
 	return i.Consumer.StartConsumer(func(v interface{}) error {
 		log.Println("Received Message\n")
+		log.Println(v)
 		switch v.(type) {
 		case *model.Command:
 			return i.recordCommand(v.(*model.Command))
 		case *model.Event:
 			return i.recordEvent(v.(*model.Event))
 		default:
-			log.Fatal("Invalid Value put on Queue")
+			log.Println("Invalid Value put on Queue")
 			return nil
 		}
 	})

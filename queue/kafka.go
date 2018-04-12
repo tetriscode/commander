@@ -28,8 +28,8 @@ var EVENTS_TOPIC, COMMANDS_TOPIC string
 
 // NewKafkaConsumer creates a new kafka consumer
 func NewKafkaConsumer(topics []string) (Consumer, error) {
-	EVENTS_TOPIC = os.Getenv("EVENTS_TOPIC")
-	COMMANDS_TOPIC = os.Getenv("COMMANDS_TOPIC")
+	EVENTS_TOPIC = os.Getenv("KAFKA_EVENTS_TOPIC")
+	COMMANDS_TOPIC = os.Getenv("KAFKA_COMMANDS_TOPIC")
 	c, err := kafka.NewConsumer(&kafka.ConfigMap{
 		"metadata.broker.list":            os.Getenv("KAFKA_BROKERS"),
 		"security.protocol":               "SASL_SSL",
@@ -50,11 +50,13 @@ func NewKafkaConsumer(topics []string) (Consumer, error) {
 func kafkaMessageToEntity(k *kafka.Message) interface{} {
 	topic := k.TopicPartition.Topic
 	log.Printf("Message To Entity Topic:%s\n", *topic)
-	log.Printf("CommandsTopic:%s", COMMANDS_TOPIC)
+	log.Printf("Message Key:%s", string(k.Key))
 	if *topic == COMMANDS_TOPIC {
+		log.Println("Received Command")
 		var cmd model.CommandParams
 		err := proto.Unmarshal(k.Value, &cmd)
 		if err != nil {
+			log.Println("Error parsing pbf for Command")
 			log.Fatal(err)
 		} else {
 			uid, err := uuid.Parse(string(k.Key))
@@ -71,21 +73,24 @@ func kafkaMessageToEntity(k *kafka.Message) interface{} {
 			}
 		}
 	} else if *topic == EVENTS_TOPIC {
+		log.Println("Received Event")
 		var evt model.Event
 		err := proto.Unmarshal(k.Value, &evt)
 		if err != nil {
-			return nil
+			log.Println("Error parsing pbf for Event")
+			log.Fatal(err)
 		} else {
 			uid, err := uuid.Parse(string(k.Key))
 			if err != nil {
 				log.Fatal(err)
 			}
-			return &model.Command{Id: &model.UUID{Value: uid.String()},
+			return &model.Event{Id: &model.UUID{Value: uid.String()},
 				Action:    evt.Action,
 				Data:      evt.Data,
 				Topic:     *k.TopicPartition.Topic,
 				Offset:    int64(k.TopicPartition.Offset),
 				Timestamp: k.Timestamp.Unix(),
+				Parent:    evt.GetParent(),
 				//TODO Children
 			}
 		}
@@ -103,7 +108,6 @@ func (k *kafkaConsumer) StartConsumer(fn func(interface{}) error) error {
 	signal.Notify(sigchan, syscall.SIGINT, syscall.SIGTERM)
 
 	go func() {
-
 		k.isRunning = true
 		log.Println("Starting Consumer Loop")
 		for k.isRunning == true {

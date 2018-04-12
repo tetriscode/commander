@@ -21,22 +21,20 @@ syntax = "proto3";
 package commander;
 option go_package = "model";
 
-import "google/protobuf/struct.proto";
-
 message UUID {
   string value = 1;
 }
 
 message CommandParams {
   string action = 1;
-  google.protobuf.Struct data = 2;
+  string data = 2;
   bool sync = 3;
 }
 
 message Command {
   UUID id = 1;
   string action = 2;
-  google.protobuf.Struct data = 3;
+  string data = 3;
   int64 timestamp = 4;
   string topic = 5;
   int32 partition = 6;
@@ -54,7 +52,7 @@ message PagedCommands {
 message Event {
   UUID id = 1;
   string action = 2;
-  google.protobuf.Struct data = 3;
+  string data = 3;
   int64 timestamp = 4;
   string topic = 5;
   int32 partition = 6;

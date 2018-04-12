@@ -19,7 +19,7 @@ type RestServer struct {
 func NewRestServer(q *queue.Queue) *RestServer {
 	router := gin.Default()
 	restServer := &RestServer{server: &http.Server{
-		Addr:    ":8080",
+		Addr:    ":8081",
 		Handler: router,
 	}, router: router,
 		queue: q}

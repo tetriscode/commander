@@ -19,8 +19,8 @@ func main() {
 		log.Fatal("Error loading .env file")
 	}
 
-	eventsTopic := os.Getenv("EVENTS_TOPIC")
-	commandsTopic := os.Getenv("COMMANDS_TOPIC")
+	eventsTopic := os.Getenv("KAFKA_EVENTS_TOPIC")
+	commandsTopic := os.Getenv("KAFKA_COMMANDS_TOPIC")
 
 	p, _ := queue.NewKafkaProducer(commandsTopic)
 	c, _ := queue.NewKafkaConsumer([]string{eventsTopic, commandsTopic})

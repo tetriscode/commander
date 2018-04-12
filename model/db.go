@@ -2,6 +2,7 @@ package model
 
 import (
 	"context"
+	"log"
 	"os"
 
 	"cloud.google.com/go/datastore"
@@ -75,6 +76,7 @@ func (db *DB) GetCommand(command *Command) error {
 // CreateEvent creates an Event entity and stores it in datastore
 func (db *DB) CreateEvent(event *Event) error {
 	entity := event
+	log.Println("Put Event in Datastore")
 	k := datastore.NameKey(string(KindTypeEvent), (entity.Id).String(), nil)
 	_, err := db.client.Put(db.ctx, k, entity)
 	if err != nil {
