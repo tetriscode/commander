@@ -5,7 +5,7 @@ import (
 	"github.com/tetriscode/commander/model"
 )
 
-func (r *RestServer) MakeEventRoutes(db *model.DB) {
+func (r *RestServer) MakeEventRoutes() {
 	r.router.GET("/events/:cid", getEvent())
 }
 

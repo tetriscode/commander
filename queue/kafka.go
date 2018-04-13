@@ -82,6 +82,7 @@ func kafkaMessageToEntity(k *kafka.Message) interface{} {
 		} else {
 			uid, err := uuid.Parse(string(k.Key))
 			if err != nil {
+				log.Println("UHOH")
 				log.Fatal(err)
 			}
 			return &model.Event{Id: &model.UUID{Value: uid.String()},
