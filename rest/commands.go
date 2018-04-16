@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"github.com/gin-contrib/tracing"
 	"github.com/gin-gonic/gin"
 	"github.com/tetriscode/commander/model"
 	"github.com/tetriscode/commander/queue"
@@ -8,8 +9,15 @@ import (
 
 //MakeCommandRoutes will bind router to http responses
 func (r *RestServer) MakeCommandRoutes() {
-	r.router.GET("/commands/:cid", getCommand())
-	r.router.POST("/commands", createCommand(r.queue))
+	trace := r.tracer.tracer
+	r.router.GET("/commands/:cid",
+		tracing.NewSpan(trace, "forward to kafka"),
+		tracing.InjectToHeaders(trace, true),
+		getCommand())
+	r.router.POST("/commands",
+		tracing.NewSpan(trace, "forward to kafka"),
+		tracing.InjectToHeaders(trace, true),
+		createCommand(r.queue))
 }
 
 func getCommand() func(*gin.Context) {

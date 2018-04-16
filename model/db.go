@@ -85,13 +85,13 @@ func (db *DB) CreateEvent(event *Event) error {
 	return nil
 }
 
-// GetEvent gets an Event entity from datastore
-func (db *DB) GetEvent(event *Event) error {
-	entity := event
-	k := datastore.NameKey(string(KindTypeEvent), (entity.Id).String(), nil)
+//GetEvent gets an Event entity from datastore
+func (db *DB) GetEvent(id string) *Event {
+	var entity *Event
+	k := datastore.NameKey(string(KindTypeEvent), id, nil)
 	err := db.client.Get(db.ctx, k, entity)
 	if err != nil {
-		return errors.Wrapf(err, "failed to get %s %s from datastore", KindTypeEvent, entity.Id)
+		log.Printf("failed to get %s %s from datastore", KindTypeEvent, entity.Id)
 	}
-	return nil
+	return entity
 }

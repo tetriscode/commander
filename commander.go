@@ -25,11 +25,13 @@ func main() {
 	p, _ := queue.NewKafkaProducer(commandsTopic)
 	c, _ := queue.NewKafkaConsumer([]string{eventsTopic, commandsTopic})
 	q := &queue.Queue{Producer: p, Consumer: c}
-	r := rest.NewRestServer(q)
 	db, err := model.NewDB()
 	if err != nil {
 		log.Fatal(err.Error())
 	}
+
+	r := rest.NewRestServer(db, q)
+
 	// func NewIndexer(consumer queue.Consumer, db *model.DB) *Indexer {
 	i := indexer.NewIndexer(q.Consumer, db)
 

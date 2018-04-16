@@ -2,30 +2,50 @@ package rest
 
 import (
 	"context"
+	"io"
 	"log"
 	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/uber/jaeger-client-go/config"
+
+	"github.com/opentracing/opentracing-go"
+	"github.com/tetriscode/commander/model"
 	"github.com/tetriscode/commander/queue"
 )
+
+type trace struct {
+	tracer opentracing.Tracer
+	closer io.Closer
+}
 
 type RestServer struct {
 	server *http.Server
 	router *gin.Engine
 	queue  *queue.Queue
+	tracer trace
 }
 
-func NewRestServer(q *queue.Queue) *RestServer {
+func NewRestServer(db *model.DB, q *queue.Queue) *RestServer {
+	cfg := config.Configuration{ServiceName: "commander"}
+	tracer, closer, err := cfg.NewTracer()
+
+	if err != nil {
+		log.Fatal("Error creating tracer")
+		return nil
+	}
+
 	router := gin.Default()
 	restServer := &RestServer{server: &http.Server{
 		Addr:    ":8081",
 		Handler: router,
 	}, router: router,
-		queue: q}
+		queue:  q,
+		tracer: trace{tracer, closer}}
 
 	restServer.MakeCommandRoutes()
-	restServer.MakeEventRoutes()
+	restServer.MakeEventRoutes(db)
 
 	return restServer
 }
@@ -45,7 +65,7 @@ func (s *RestServer) Stop(err error) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 	log.Print("Stopping Rest Server")
-
+	s.tracer.closer.Close()
 	err = s.server.Shutdown(ctx)
 	if err != nil {
 		log.Println(err)
