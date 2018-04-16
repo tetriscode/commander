@@ -5,8 +5,10 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
+	"github.com/arichardet/grammar-log/logger"
 	"github.com/gin-gonic/gin"
 	"github.com/uber/jaeger-client-go/config"
 
@@ -43,6 +45,9 @@ func NewRestServer(db *model.DB, q *queue.Queue) *RestServer {
 	}, router: router,
 		queue:  q,
 		tracer: trace{tracer, closer}}
+
+	l := logger.NewLogger("commander", os.Stdout)
+	router.Use(gingrammarlog.GinGrammarLog(l, time.RFC3339, true))
 
 	restServer.MakeCommandRoutes()
 	restServer.MakeEventRoutes(db)

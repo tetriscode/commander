@@ -16,10 +16,22 @@
   version = "v0.20.0"
 
 [[projects]]
+  name = "github.com/Sirupsen/logrus"
+  packages = ["."]
+  revision = "c155da19408a8799da419ed3eeb0cb5db0ad5dbc"
+  version = "v1.0.5"
+
+[[projects]]
   name = "github.com/apache/thrift"
   packages = ["lib/go/thrift"]
   revision = "b2a4d4ae21c789b689dd162deb819665567f481c"
   version = "0.10.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/arichardet/grammar-log"
+  packages = ["logger"]
+  revision = "df4af50051903b8d28f943dfe7dfa85cfedae207"
 
 [[projects]]
   branch = "master"
@@ -161,6 +173,12 @@
 
 [[projects]]
   branch = "master"
+  name = "golang.org/x/crypto"
+  packages = ["ssh/terminal"]
+  revision = "d6449816ce06963d9d136eee5a56fca5b0616e7e"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -189,7 +207,10 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/sys"
-  packages = ["unix"]
+  packages = [
+    "unix",
+    "windows"
+  ]
   revision = "378d26f46672a356c46195c28f61bdb4c0a781dd"
 
 [[projects]]
@@ -303,6 +324,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "f9549c50bc43f43d5d5c6debe230652d0d6bebb56cfdcaed276df74ef506faa8"
+  inputs-digest = "bf5d109d4b0f351c33673047b1dca6a36bc38e413e6dbdb7385205749473fd75"
   solver-name = "gps-cdcl"
   solver-version = 1
