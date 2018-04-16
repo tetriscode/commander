@@ -18,7 +18,7 @@ func getCommand() func(*gin.Context) {
 	}
 }
 
-func createCommand(q *queue.Queue) func(*gin.Context) {
+func createCommand(q *queue.Queue) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var cmdParam model.CommandParams
 		if inputErr := c.BindJSON(&cmdParam); inputErr != nil {

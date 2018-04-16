@@ -4,9 +4,12 @@ import (
 	"context"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
+	"github.com/arichardet/grammar-log/logger"
 	"github.com/gin-gonic/gin"
+	"github.com/tetriscode/commander/gingrammarlog"
 	"github.com/tetriscode/commander/queue"
 )
 
@@ -23,6 +26,9 @@ func NewRestServer(q *queue.Queue) *RestServer {
 		Handler: router,
 	}, router: router,
 		queue: q}
+
+	l := logger.NewLogger("commander", os.Stdout)
+	router.Use(gingrammarlog.GinGrammarLog(l, time.RFC3339, true))
 
 	restServer.MakeCommandRoutes()
 	restServer.MakeEventRoutes()
