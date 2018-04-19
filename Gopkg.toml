@@ -35,5 +35,6 @@
 
 
 [[constraint]]
-  branch = "master"
-  name = "github.com/gin-contrib/tracing"
+  name = "github.com/gin-contrib/opengintracing"
+  revision = "92b8157ece6b494ce988f8c01775e0a20174419d"
+

@@ -1,7 +1,7 @@
 package rest
 
 import (
-	"github.com/gin-contrib/tracing"
+	tracing "github.com/gin-contrib/opengintracing"
 	"github.com/gin-gonic/gin"
 	"github.com/tetriscode/commander/model"
 	"github.com/tetriscode/commander/queue"
