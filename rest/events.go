@@ -14,7 +14,7 @@ func (r *RestServer) MakeEventRoutes(db *model.DB) {
 		getEvent(db))
 }
 
-func getEvent() gin.HandlerFunc {
+func getEvent(db *model.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		evt := db.GetEvent(c.Param("cid"))
 		responseOK(c, evt)
