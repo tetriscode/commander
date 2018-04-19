@@ -8,11 +8,12 @@ import (
 	"os"
 	"time"
 
-	"github.com/arichardet/grammar-log/logger"
+	grammarLog "github.com/arichardet/grammar-log/logger"
 	"github.com/gin-gonic/gin"
 	"github.com/uber/jaeger-client-go/config"
 
 	"github.com/opentracing/opentracing-go"
+	"github.com/tetriscode/commander/logger"
 	"github.com/tetriscode/commander/model"
 	"github.com/tetriscode/commander/queue"
 )
@@ -46,8 +47,8 @@ func NewRestServer(db *model.DB, q *queue.Queue) *RestServer {
 		queue:  q,
 		tracer: trace{tracer, closer}}
 
-	l := logger.NewLogger("commander", os.Stdout)
-	router.Use(gingrammarlog.GinGrammarLog(l, time.RFC3339, true))
+	l := grammarLog.NewLogger("commander", os.Stdout)
+	router.Use(logger.GinGrammarLog(l, time.RFC3339, true))
 
 	restServer.MakeCommandRoutes()
 	restServer.MakeEventRoutes(db)
