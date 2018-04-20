@@ -20,7 +20,7 @@ func NewIndexer(consumer queue.Consumer, db *model.DB) *Indexer {
 func (i *Indexer) Start() error {
 	log.Printf("Starting Indexer")
 	return i.Consumer.StartConsumer(func(v interface{}) error {
-		log.Println("Received Message\n")
+		log.Println("Received Message")
 		log.Println(v)
 		switch v.(type) {
 		case *model.Command:

@@ -7,7 +7,6 @@ import (
 	"syscall"
 
 	"github.com/joho/godotenv"
-	"github.com/tetriscode/commander/indexer"
 	"github.com/tetriscode/commander/model"
 	"github.com/tetriscode/commander/queue"
 	"github.com/tetriscode/commander/rest"
@@ -33,9 +32,9 @@ func main() {
 	r := rest.NewRestServer(db, q)
 
 	// func NewIndexer(consumer queue.Consumer, db *model.DB) *Indexer {
-	i := indexer.NewIndexer(q.Consumer, db)
+	// i := indexer.NewIndexer(q.Consumer, db)
 
-	var restErr, indexerErr, dbErr error
+	var restErr, dbErr error //indexerErr
 	go func() {
 		restErr = r.Start()
 		if restErr != nil {
@@ -50,12 +49,12 @@ func main() {
 		}
 	}()
 
-	go func() {
-		indexerErr = i.Start()
-		if indexerErr != nil {
-			log.Panic(indexerErr)
-		}
-	}()
+	// go func() {
+	// 	indexerErr = i.Start()
+	// 	if indexerErr != nil {
+	// 		log.Panic(indexerErr)
+	// 	}
+	// }()
 
 	sigchan := make(chan os.Signal, 1)
 	signal.Notify(sigchan, syscall.SIGINT, syscall.SIGTERM)
@@ -64,7 +63,7 @@ func main() {
 	for running == true {
 		select {
 		case sig := <-sigchan:
-			i.Stop(indexerErr)
+			// i.Stop(indexerErr)
 			r.Stop(restErr)
 			log.Printf("Caught signal %v\n", sig)
 			running = false
