@@ -31,7 +31,16 @@ type RestServer struct {
 }
 
 func NewRestServer(db *model.DB, q *queue.Queue) *RestServer {
-	cfg := config.Configuration{ServiceName: "commander"}
+	cfg := config.Configuration{ServiceName: "commander",
+		Sampler: &config.SamplerConfig{
+			Type:  "const",
+			Param: 1,
+		},
+		Reporter: &config.ReporterConfig{
+			LogSpans:            true,
+			BufferFlushInterval: 1 * time.Second,
+		},
+	}
 	tracer, closer, err := cfg.NewTracer()
 
 	if err != nil {
