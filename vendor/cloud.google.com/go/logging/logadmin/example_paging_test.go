@@ -21,6 +21,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 
 	"cloud.google.com/go/logging"
 	"cloud.google.com/go/logging/logadmin"
@@ -49,9 +50,10 @@ func ExampleClient_Entries_pagination() {
 		log.Fatalf("creating logging client: %v", err)
 	}
 
+	port := os.Getenv("PORT")
 	http.HandleFunc("/entries", handleEntries)
-	log.Print("listening on 8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+	log.Printf("listening on %s", port)
+	log.Fatalf(http.ListenAndServe(":%s", nil), port)
 }
 
 var pageTemplate = template.Must(template.New("").Parse(`

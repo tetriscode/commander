@@ -8,4 +8,4 @@ WORKDIR /go/src/github.com/tetriscode/commander
 RUN go install github.com/tetriscode/commander
 
 ENTRYPOINT /go/bin/commander
-EXPOSE 8080
+EXPOSE 8081
