@@ -39,6 +39,7 @@ func NewRestServer(db *model.DB, q *queue.Queue) *RestServer {
 		Reporter: &config.ReporterConfig{
 			LogSpans:            true,
 			BufferFlushInterval: 1 * time.Second,
+			LocalAgentHostPort:  os.Getenv("JAEGER_AGENT_HOST_PORT"),
 		},
 	}
 	tracer, closer, err := cfg.NewTracer()
