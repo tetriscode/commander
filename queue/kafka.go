@@ -30,6 +30,7 @@ var EVENTS_TOPIC, COMMANDS_TOPIC string
 func NewKafkaConsumer(topics []string) (Consumer, error) {
 	EVENTS_TOPIC = os.Getenv("KAFKA_EVENTS_TOPIC")
 	COMMANDS_TOPIC = os.Getenv("KAFKA_COMMANDS_TOPIC")
+	log.Println("creating new kafka consumer")
 	c, err := kafka.NewConsumer(&kafka.ConfigMap{
 		"metadata.broker.list":            os.Getenv("KAFKA_BROKERS"),
 		"security.protocol":               "SASL_SSL",
@@ -143,6 +144,7 @@ func (k *kafkaConsumer) StartConsumer(fn func(interface{}) error) error {
 }
 
 func (k *kafkaConsumer) StopConsumer() {
+	log.Println("stopping consumer")
 	if k.isRunning {
 		k.isRunning = false
 	}
@@ -150,6 +152,7 @@ func (k *kafkaConsumer) StopConsumer() {
 
 // NewKafkaProducer creates a new kafka producer
 func NewKafkaProducer(topic string) (Producer, error) {
+	log.Println("creating new kafka producer")
 	config := &kafka.ConfigMap{
 		"metadata.broker.list": os.Getenv("KAFKA_BROKERS"),
 		"security.protocol":    "SASL_SSL",
@@ -168,6 +171,7 @@ func NewKafkaProducer(topic string) (Producer, error) {
 }
 
 func (k *kafkaProducer) SendCommand(cmdp *model.CommandParams) (*model.Command, error) {
+	log.Println("sendCommand")
 	pbf, err := proto.Marshal(cmdp)
 	if err != nil {
 		return nil, err
@@ -187,6 +191,7 @@ func (k *kafkaProducer) SendCommand(cmdp *model.CommandParams) (*model.Command, 
 }
 
 func (k *kafkaProducer) sendMessage(topic string, key, value []byte) (*kafka.Message, error) {
+	log.Println("sendMessage")
 	deliveryChan := make(chan kafka.Event)
 	err := k.p.Produce(&kafka.Message{TopicPartition: kafka.TopicPartition{
 		Topic:     &topic,
