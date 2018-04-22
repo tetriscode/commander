@@ -1,8 +1,8 @@
 package rest
 
 import (
-	tracing "github.com/gin-contrib/opengintracing"
 	"github.com/gin-gonic/gin"
+	"github.com/opentracing/opentracing-go"
 	"github.com/tetriscode/commander/model"
 	"github.com/tetriscode/commander/queue"
 )
@@ -11,23 +11,27 @@ import (
 func (r *RestServer) MakeCommandRoutes() {
 	trace := r.tracer.tracer
 	r.router.GET("/commands/:cid",
-		tracing.NewSpan(trace, "forward to kafka"),
-		tracing.InjectToHeaders(trace, true),
-		getCommand())
+		// tracing.NewSpan(trace, "forward to kafka"),
+		// tracing.InjectToHeaders(trace, true),
+		getCommand(trace))
 	r.router.POST("/commands",
-		tracing.NewSpan(trace, "forward to kafka"),
-		tracing.InjectToHeaders(trace, true),
-		createCommand(r.queue))
+		// tracing.NewSpan(trace, "forward to kafka"),
+		// tracing.InjectToHeaders(trace, true),
+		createCommand(r.queue, trace))
 }
 
-func getCommand() func(*gin.Context) {
+func getCommand(tracer opentracing.Tracer) func(*gin.Context) {
+	span := tracer.StartSpan("getCommand")
+	defer span.Finish()
 	return func(c *gin.Context) {
 		responseOK(c, &model.CommandParams{Action: "test_action"})
 	}
 }
 
-func createCommand(q *queue.Queue) gin.HandlerFunc {
+func createCommand(q *queue.Queue, tracer opentracing.Tracer) gin.HandlerFunc {
 	return func(c *gin.Context) {
+		span := tracer.StartSpan("createCommand")
+		defer span.Finish()
 		var cmdParam model.CommandParams
 		if inputErr := c.BindJSON(&cmdParam); inputErr != nil {
 			responseInternalError(c, []string{inputErr.Error()})
