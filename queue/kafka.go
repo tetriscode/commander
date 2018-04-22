@@ -174,6 +174,7 @@ func (k *kafkaProducer) SendCommand(cmdp *model.CommandParams) (*model.Command, 
 	log.Println("sendCommand")
 	pbf, err := proto.Marshal(cmdp)
 	if err != nil {
+		log.Printf("error sending command: %s", err)
 		return nil, err
 	}
 	id := uuid.New().String()
@@ -199,6 +200,7 @@ func (k *kafkaProducer) sendMessage(topic string, key, value []byte) (*kafka.Mes
 		deliveryChan)
 
 	if err != nil {
+		log.Printf("error sending message: %s on topic %s", err, topic)
 		return nil, err
 	}
 
