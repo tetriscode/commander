@@ -1,6 +1,8 @@
 package rest
 
 import (
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/opentracing/opentracing-go"
 	"github.com/tetriscode/commander/model"
@@ -21,9 +23,12 @@ func (r *RestServer) MakeCommandRoutes() {
 }
 
 func getCommand(tracer opentracing.Tracer) func(*gin.Context) {
-	span := tracer.StartSpan("getCommand")
-	defer span.Finish()
 	return func(c *gin.Context) {
+		parent := tracer.StartSpan("getCommand")
+		defer parent.Finish()
+		child := opentracing.GlobalTracer().StartSpan("world", opentracing.ChildOf(parent.Context()))
+		time.Sleep(1000)
+		defer child.Finish()
 		responseOK(c, &model.CommandParams{Action: "test_action"})
 	}
 }
