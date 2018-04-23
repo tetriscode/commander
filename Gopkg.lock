@@ -20,10 +20,9 @@
   version = "0.10.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/arichardet/grammar-log"
   packages = ["logger"]
-  revision = "df4af50051903b8d28f943dfe7dfa85cfedae207"
+  revision = "800590f0f7e8dc1953608a938b3b22634e4a1bf2"
 
 [[projects]]
   branch = "master"
@@ -36,11 +35,6 @@
   packages = ["kafka"]
   revision = ""
   version = "v0.11.0"
-
-[[projects]]
-  name = "github.com/gin-contrib/opengintracing"
-  packages = ["."]
-  revision = "92b8157ece6b494ce988f8c01775e0a20174419d"
 
 [[projects]]
   branch = "master"
@@ -189,6 +183,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "813db38b5de1433cf9e92a00c9bb27f62b4e426e5acfebdf4da2df64a3f0b2fb"
+  inputs-digest = "5de28700ab6e63b7881cef5cc7e07e05ef071da1d8c5a2b5acdcd0423a1d64a1"
   solver-name = "gps-cdcl"
   solver-version = 1

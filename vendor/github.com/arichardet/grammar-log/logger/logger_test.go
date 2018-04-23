@@ -12,6 +12,8 @@ func TestLogger(t *testing.T) {
 
 	// expected := &Event{"service_name", "drives", "home", DEBUG}
 	logger.Debug().Verb("drives").Object("home").Log()
+	logger.Debug().Verb("verb").Object("object").IndirectObject("indObject").PrepObject("prepObject").Log()
+	logger.Debug().Verb("verb").Object("object").PrepObject("only prep").Log()
 
 	// assert.Equal(t, l.event, expected)
 

@@ -2,6 +2,7 @@ package logger
 
 import (
 	"os"
+	"time"
 
 	"github.com/Sirupsen/logrus"
 )
@@ -36,6 +37,12 @@ const (
 
 	// FieldTypeObject represents an event object
 	FieldTypeObject FieldType = "object"
+
+	// FieldTypeIndirectObject represents an event indirect object
+	FieldTypeIndirectObject FieldType = "indirect_object"
+
+	// FieldTypePrepObject represents an event prepositional object
+	FieldTypePrepObject FieldType = "prep_object"
 )
 
 // Logger type
@@ -49,11 +56,14 @@ type Logger struct {
 
 // Event type
 type Event struct {
-	SubjectVal string
-	VerbVal    string
-	ObjectVal  string
-	Level      Level
-	log        *logrus.Logger
+	Time              string
+	SubjectVal        string
+	VerbVal           string
+	ObjectVal         string
+	IndirectObjectVal string
+	PrepObjectVal     string
+	Level             Level
+	log               *logrus.Logger
 }
 
 // NewLogger creates a new Logger
@@ -66,7 +76,7 @@ func NewLogger(service string, destination *os.File) *Logger {
 
 // Debug for Logger
 func (l *Logger) Debug() Event {
-	return Event{SubjectVal: l.service, Level: DEBUG, log: l.log}
+	return Event{Time: time.Now().Format(time.RFC3339), SubjectVal: l.service, Level: DEBUG, log: l.log}
 }
 
 // Verb for Logger
@@ -81,11 +91,36 @@ func (e Event) Object(object string) Event {
 	return e
 }
 
+// IndirectObject for Logger
+func (e Event) IndirectObject(indirectObject string) Event {
+	e.IndirectObjectVal = indirectObject
+	return e
+}
+
+// PrepObject for Logger
+func (e Event) PrepObject(prepObject string) Event {
+	e.PrepObjectVal = prepObject
+	return e
+}
+
 // Log for Logger
 func (e Event) Log() {
-	e.log.WithFields(logrus.Fields{
+	fields := logrus.Fields{
 		string(FieldTypeSubject): e.SubjectVal,
 		string(FieldTypeVerb):    e.VerbVal,
-		string(FieldTypeObject):  e.ObjectVal,
-	}).Debug()
+	}
+
+	if e.ObjectVal != "" {
+		fields[string(FieldTypeObject)] = e.ObjectVal
+	}
+
+	if e.IndirectObjectVal != "" {
+		fields[string(FieldTypeIndirectObject)] = e.IndirectObjectVal
+	}
+
+	if e.PrepObjectVal != "" {
+		fields[string(FieldTypePrepObject)] = e.PrepObjectVal
+	}
+
+	e.log.WithFields(logrus.Fields(fields)).Debug()
 }

@@ -33,8 +33,6 @@
   name = "github.com/pkg/errors"
   version = "0.8.0"
 
-
 [[constraint]]
-  name = "github.com/gin-contrib/opengintracing"
-  revision = "92b8157ece6b494ce988f8c01775e0a20174419d"
-
+  name = "github.com/arichardet/grammar-log"
+  revision = "800590f0f7e8dc1953608a938b3b22634e4a1bf2"
