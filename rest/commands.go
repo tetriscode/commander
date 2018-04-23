@@ -1,6 +1,8 @@
 package rest
 
 import (
+	"time"
+
 	"github.com/arichardet/grammar-log/logger"
 	"github.com/gin-gonic/gin"
 	"github.com/opentracing/opentracing-go"
@@ -23,15 +25,26 @@ func (r *RestServer) MakeCommandRoutes(logger *logger.Logger) {
 
 func getCommand(tracer opentracing.Tracer, logger *logger.Logger) func(*gin.Context) {
 	return func(c *gin.Context) {
-		span := tracer.StartSpan("getCommand")
-		defer span.Finish()
+		// span := tracer.StartSpan("getCommand")
+		// defer span.Finish()
+
+		parent := tracer.StartSpan("getCommand")
+		defer parent.Finish()
+		child := tracer.StartSpan("world", opentracing.ChildOf(parent.Context()))
+		time.Sleep(3 * time.Second)
+		defer child.Finish()
+
 		cmdParam := &model.CommandParams{Action: "test_action"}
 		responseOK(c, cmdParam)
 		grammar := actionToGrammar(cmdParam.Action)
 		logger.Debug().Verb(grammar.verb).Object(grammar.object).IndirectObject(cmdParam.Data).Log()
-		span.SetTag(FieldTypeVerb, grammar.verb)
-		span.SetTag(FieldTypeObject, grammar.object)
-		span.SetTag(FieldTypeIndirectObject, cmdParam.Data)
+		parent.SetTag(FieldTypeVerb, grammar.verb)
+		parent.SetTag(FieldTypeObject, grammar.object)
+		parent.SetTag(FieldTypeIndirectObject, cmdParam.Data)
+
+		child.SetTag(FieldTypeVerb, "child"+grammar.verb)
+		child.SetTag(FieldTypeObject, "child"+grammar.object)
+		child.SetTag(FieldTypeIndirectObject, "child"+cmdParam.Data)
 	}
 }
 
