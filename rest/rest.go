@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	grammarLog "github.com/arichardet/grammar-log/logger"
@@ -23,6 +24,7 @@ type trace struct {
 	closer io.Closer
 }
 
+// RestServer Type
 type RestServer struct {
 	server *http.Server
 	router *gin.Engine
@@ -30,6 +32,35 @@ type RestServer struct {
 	tracer trace
 }
 
+// grammar type
+type grammar struct {
+	verb   string
+	object string
+}
+
+const (
+	// FieldTypeSubject represents an event subject
+	FieldTypeSubject string = "subject"
+
+	// FieldTypeVerb represents a verb
+	FieldTypeVerb string = "verb"
+
+	// FieldTypeObject represents an object
+	FieldTypeObject string = "object"
+
+	// FieldTypeIndirectObject represents an  indirect object
+	FieldTypeIndirectObject string = "indirect_object"
+
+	// FieldTypePrepObject represents a prepositional object
+	FieldTypePrepObject string = "prep_object"
+)
+
+func actionToGrammar(action string) grammar {
+	pieces := strings.Split(action, "_")
+	return grammar{pieces[0], pieces[1]}
+}
+
+// NewRestServer creates a RestServer
 func NewRestServer(db *model.DB, q *queue.Queue) *RestServer {
 	cfg := config.Configuration{ServiceName: "commander",
 		Sampler: &config.SamplerConfig{
@@ -60,8 +91,8 @@ func NewRestServer(db *model.DB, q *queue.Queue) *RestServer {
 	l := grammarLog.NewLogger("commander", os.Stdout)
 	router.Use(logger.GinGrammarLog(l, time.RFC3339, true))
 
-	restServer.MakeCommandRoutes()
-	restServer.MakeEventRoutes(db)
+	restServer.MakeCommandRoutes(l)
+	restServer.MakeEventRoutes(db, l)
 
 	return restServer
 }
