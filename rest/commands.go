@@ -27,7 +27,7 @@ func getCommand(tracer opentracing.Tracer) func(*gin.Context) {
 		parent := tracer.StartSpan("getCommand")
 		defer parent.Finish()
 		child := opentracing.GlobalTracer().StartSpan("world", opentracing.ChildOf(parent.Context()))
-		time.Sleep(1000)
+		time.Sleep(3 * time.Second)
 		defer child.Finish()
 		responseOK(c, &model.CommandParams{Action: "test_action"})
 	}
