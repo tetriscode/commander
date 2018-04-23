@@ -32,12 +32,9 @@ func NewKafkaConsumer(topics []string) (Consumer, error) {
 	COMMANDS_TOPIC = os.Getenv("KAFKA_COMMANDS_TOPIC")
 	log.Println("creating new kafka consumer")
 	c, err := kafka.NewConsumer(&kafka.ConfigMap{
-		"metadata.broker.list":            os.Getenv("KAFKA_BROKERS"),
-		"security.protocol":               "SASL_SSL",
-		"sasl.mechanisms":                 "SCRAM-SHA-256",
-		"sasl.username":                   os.Getenv("KAFKA_USERNAME"),
-		"sasl.password":                   os.Getenv("KAFKA_PASSWORD"),
+		"bootstrap.servers":               os.Getenv("KAFKA_BROKERS"),
 		"group.id":                        os.Getenv("KAFKA_GROUP_ID"),
+		"session.timeout.ms":              6000,
 		"go.events.channel.enable":        true,
 		"go.application.rebalance.enable": true,
 		"default.topic.config":            kafka.ConfigMap{"auto.offset.reset": "earliest"},
@@ -154,14 +151,9 @@ func (k *kafkaConsumer) StopConsumer() {
 func NewKafkaProducer(topic string) (Producer, error) {
 	log.Println("creating new kafka producer")
 	config := &kafka.ConfigMap{
-		"metadata.broker.list": os.Getenv("KAFKA_BROKERS"),
-		"security.protocol":    "SASL_SSL",
-		"sasl.mechanisms":      "SCRAM-SHA-256",
-		"sasl.username":        os.Getenv("KAFKA_USERNAME"),
-		"sasl.password":        os.Getenv("KAFKA_PASSWORD"),
+		"bootstrap.servers":    os.Getenv("KAFKA_BROKERS"),
 		"group.id":             os.Getenv("KAFKA_GROUP_ID"),
 		"default.topic.config": kafka.ConfigMap{"auto.offset.reset": "earliest"},
-		//"debug":                           "generic,broker,security",
 	}
 	producer, err := kafka.NewProducer(config)
 	if err != nil {
