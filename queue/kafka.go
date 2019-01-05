@@ -16,10 +16,10 @@ import (
 )
 
 type KafkaConfig struct {
-	EventsTopic   string
-	CommandsTopic string
-	Brokers       string
-	GroupID       string
+	EventsTopic   string `envconfig:"KAFKA_EVENTS_TOPIC"`
+	CommandsTopic string `envconfig:"KAFKA_COMMANDS_TOPIC"`
+	Brokers       string `envconfig:"KAFKA_BROKERS"`
+	GroupID       string `envconfig:"KAFKA_GROUPID"`
 }
 
 type kafkaConsumer struct {

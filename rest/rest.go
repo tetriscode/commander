@@ -74,7 +74,7 @@ func NewRestServer(db *model.DB, q *queue.Queue) *RestServer {
 
 	router := gin.Default()
 	restServer := &RestServer{server: &http.Server{
-		Addr:    ":" + os.Getenv("PORT"),
+		Addr:    ":80",
 		Handler: router,
 	}, router: router,
 		queue:  q,
@@ -101,7 +101,7 @@ func (r *RestServer) ping(c *gin.Context) {
 
 //Start will run the configured REST Server
 func (s *RestServer) Start() error {
-	log.Printf("Starting HTTP Server on port %s\n", os.Getenv("PORT"))
+	log.Printf("Starting HTTP Server on port 80\n")
 	return s.server.ListenAndServe()
 }
 

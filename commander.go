@@ -14,12 +14,10 @@ import (
 )
 
 type Config struct {
-	DBHost        string `envconfig:"DB_HOST"`
-	DBUser        string `envconfig:"DB_USER"`
-	DBPass        string `envconfig:"DB_PASS"`
-	DBName        string `envconfig:"DB_NAME"`
-	EventsTopic   string `envconfig:"KAFKA_EVENTS_TOPIC"`
-	CommandsTopic string `envconfig:"KAFKA_COMMANDS_TOPIC"`
+	DBHost string `envconfig:"DB_HOST"`
+	DBUser string `envconfig:"DB_USER"`
+	DBPass string `envconfig:"DB_PASS"`
+	DBName string `envconfig:"DB_NAME"`
 }
 
 func main() {
