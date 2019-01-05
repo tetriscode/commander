@@ -6,26 +6,40 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/joho/godotenv"
+	"github.com/kelseyhightower/envconfig"
 	"github.com/tetriscode/commander/indexer"
 	"github.com/tetriscode/commander/model"
 	"github.com/tetriscode/commander/queue"
 	"github.com/tetriscode/commander/rest"
 )
 
+type Config struct {
+	DBHost        string `envconfig:"DB_HOST"`
+	DBUser        string `envconfig:"DB_USER"`
+	DBPass        string `envconfig:"DB_PASS"`
+	DBName        string `envconfig:"DB_NAME"`
+	EventsTopic   string `envconfig:"KAFKA_EVENTS_TOPIC"`
+	CommandsTopic string `envconfig:"KAFKA_COMMANDS_TOPIC"`
+}
+
 func main() {
-	err := godotenv.Load()
+
+	var cfg Config
+	err := envconfig.Process("commander-db", &cfg)
 	if err != nil {
-		log.Println("Error loading .env file")
+		log.Fatal(err.Error())
 	}
 
-	eventsTopic := os.Getenv("KAFKA_EVENTS_TOPIC")
-	commandsTopic := os.Getenv("KAFKA_COMMANDS_TOPIC")
+	var kCfg queue.KafkaConfig
+	err = envconfig.Process("commander-kafka", &kCfg)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 
-	p, _ := queue.NewKafkaProducer(commandsTopic)
-	c, _ := queue.NewKafkaConsumer([]string{eventsTopic, commandsTopic})
+	p, _ := queue.NewKafkaProducer(kCfg)
+	c, _ := queue.NewKafkaConsumer(kCfg)
 	q := &queue.Queue{Producer: p, Consumer: c}
-	db := model.NewDB(os.Getenv("DB_HOST"), "commander", "commander", "commander", false)
+	db := model.NewDB(cfg.DBHost, cfg.DBName, cfg.DBUser, cfg.DBPass, false)
 
 	r := rest.NewRestServer(db, q)
 

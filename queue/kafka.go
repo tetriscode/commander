@@ -15,27 +15,33 @@ import (
 	"github.com/tetriscode/commander/util"
 )
 
+type KafkaConfig struct {
+	EventsTopic   string
+	CommandsTopic string
+	Brokers       string
+	GroupID       string
+}
+
 type kafkaConsumer struct {
+	cfg       KafkaConfig
 	c         *kafka.Consumer
 	isRunning bool
 	topics    []string
 }
 
 type kafkaProducer struct {
+	cfg   KafkaConfig
 	p     *kafka.Producer
 	topic string
 }
 
-var EVENTS_TOPIC, COMMANDS_TOPIC string
-
 // NewKafkaConsumer creates a new kafka consumer
-func NewKafkaConsumer(topics []string) (Consumer, error) {
-	EVENTS_TOPIC = os.Getenv("KAFKA_EVENTS_TOPIC")
-	COMMANDS_TOPIC = os.Getenv("KAFKA_COMMANDS_TOPIC")
+func NewKafkaConsumer(cfg KafkaConfig) (Consumer, error) {
+	topics := []string{cfg.EventsTopic, cfg.CommandsTopic}
 	util.Log.Debug().Verb("creating").Object("kafka consumer").Log()
 	c, err := kafka.NewConsumer(&kafka.ConfigMap{
-		"bootstrap.servers":               os.Getenv("KAFKA_BROKERS"),
-		"group.id":                        os.Getenv("KAFKA_GROUP_ID"),
+		"bootstrap.servers":               cfg.Brokers,
+		"group.id":                        cfg.GroupID,
 		"session.timeout.ms":              6000,
 		"go.events.channel.enable":        true,
 		"go.application.rebalance.enable": true,
@@ -45,12 +51,12 @@ func NewKafkaConsumer(topics []string) (Consumer, error) {
 		return nil, errors.Wrap(err, "failed to create kafka consumer")
 	}
 	util.Log.Debug().Verb("created").Object("kafka consumer").Log()
-	return &kafkaConsumer{c, false, topics}, nil
+	return &kafkaConsumer{cfg, c, false, topics}, nil
 }
 
-func kafkaMessageToEntity(k *kafka.Message) interface{} {
+func kafkaMessageToEntity(cfg KafkaConfig, k *kafka.Message) interface{} {
 	topic := k.TopicPartition.Topic
-	if *topic == COMMANDS_TOPIC {
+	if *topic == cfg.CommandsTopic {
 		util.Log.Debug().Verb("received").Object("command").IndirectObject("kafka").Log()
 		var cmd model.CommandParams
 		err := proto.Unmarshal(k.Value, &cmd)
@@ -72,7 +78,7 @@ func kafkaMessageToEntity(k *kafka.Message) interface{} {
 				//TODO Children
 			}
 		}
-	} else if *topic == EVENTS_TOPIC {
+	} else if *topic == cfg.EventsTopic {
 		util.Log.Debug().Verb("received").Object("event").IndirectObject("kafka").Log()
 		var evt model.Event
 		err := proto.Unmarshal(k.Value, &evt)
@@ -127,7 +133,7 @@ func (k *kafkaConsumer) StartConsumer(fn func(interface{}) error) error {
 					k.c.Unassign()
 				case *kafka.Message:
 					util.Log.Debug().Verb("received").Object("message").IndirectObject("kafka").Log()
-					err := fn(kafkaMessageToEntity(e))
+					err := fn(kafkaMessageToEntity(k.cfg, e))
 					if err != nil {
 						log.Fatal(err.Error())
 					}
@@ -151,18 +157,18 @@ func (k *kafkaConsumer) StopConsumer() {
 }
 
 // NewKafkaProducer creates a new kafka producer
-func NewKafkaProducer(topic string) (Producer, error) {
+func NewKafkaProducer(cfg KafkaConfig) (Producer, error) {
 	log.Println("creating new kafka producer")
 	config := &kafka.ConfigMap{
-		"bootstrap.servers":    os.Getenv("KAFKA_BROKERS"),
-		"group.id":             os.Getenv("KAFKA_GROUP_ID"),
+		"bootstrap.servers":    cfg.Brokers,
+		"group.id":             cfg.GroupID,
 		"default.topic.config": kafka.ConfigMap{"auto.offset.reset": "earliest"},
 	}
 	producer, err := kafka.NewProducer(config)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to create kafka producer")
 	}
-	return &kafkaProducer{p: producer, topic: topic}, nil
+	return &kafkaProducer{p: producer, topic: cfg.CommandsTopic}, nil
 }
 
 func (k *kafkaProducer) SendCommand(cmdp *model.CommandParams) (*model.Command, error) {
