@@ -27,7 +27,7 @@ func NewDB(host, dbname, user, pass string, sslMode bool) *DB {
 	}
 	connStr := fmt.Sprintf("host=%s dbname=%s user=%s password=%s sslmode=%s",
 		host, dbname, user, pass, mode)
-
+	log.Println(connStr)
 	return &DB{nil, connStr}
 }
 
