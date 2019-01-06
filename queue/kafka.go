@@ -20,6 +20,8 @@ type KafkaConfig struct {
 	CommandsTopic string `envconfig:"KAFKA_COMMANDS_TOPIC"`
 	Brokers       string `envconfig:"KAFKA_BROKERS"`
 	GroupID       string `envconfig:"KAFKA_GROUPID"`
+	Username      string `envconfig:"KAFKA_USERNAME"`
+	Password      string `envconfig:"KAFKA_PASSWORD"`
 }
 
 type kafkaConsumer struct {
@@ -42,6 +44,10 @@ func NewKafkaConsumer(cfg KafkaConfig) (Consumer, error) {
 	c, err := kafka.NewConsumer(&kafka.ConfigMap{
 		"bootstrap.servers":               cfg.Brokers,
 		"group.id":                        cfg.GroupID,
+		"security.protocol":               "SASL_SSL",
+		"sasl.mechanisms":                 "SCRAM-SHA-256",
+		"sasl.username":                   cfg.Username,
+		"sasl.password":                   cfg.Password,
 		"session.timeout.ms":              6000,
 		"go.events.channel.enable":        true,
 		"go.application.rebalance.enable": true,
@@ -160,7 +166,11 @@ func (k *kafkaConsumer) StopConsumer() {
 func NewKafkaProducer(cfg KafkaConfig) (Producer, error) {
 	log.Println("creating new kafka producer")
 	config := &kafka.ConfigMap{
-		"bootstrap.servers":    cfg.Brokers,
+		"metadata.broker.list": cfg.Brokers,
+		"security.protocol":    "SASL_SSL",
+		"sasl.mechanisms":      "SCRAM-SHA-256",
+		"sasl.username":        cfg.Username,
+		"sasl.password":        cfg.Password,
 		"group.id":             cfg.GroupID,
 		"default.topic.config": kafka.ConfigMap{"auto.offset.reset": "earliest"},
 	}
