@@ -18,12 +18,12 @@ type DB struct {
 
 //NewDB constructs a new DB
 //NewDB instantiates the DB struct using the injected config
-func NewDB(host, dbname, user, pass string, sslMode bool) *DB {
+func NewDB(host, dbname, user, pass, sslMode string) *DB {
 	var mode string
-	if sslMode {
-		mode = "enable"
-	} else {
+	if sslMode == "" {
 		mode = "disable"
+	} else {
+		mode = sslMode
 	}
 	connStr := fmt.Sprintf("host=%s dbname=%s user=%s password=%s sslmode=%s",
 		host, dbname, user, pass, mode)

@@ -14,10 +14,11 @@ import (
 )
 
 type Config struct {
-	DBHost string `envconfig:"DB_HOST"`
-	DBUser string `envconfig:"DB_USER"`
-	DBPass string `envconfig:"DB_PASS"`
-	DBName string `envconfig:"DB_NAME"`
+	DBHost    string `envconfig:"DB_HOST"`
+	DBUser    string `envconfig:"DB_USER"`
+	DBPass    string `envconfig:"DB_PASS"`
+	DBName    string `envconfig:"DB_NAME"`
+	DBSSLMode string `envconfig:"DB_SSLMODE"`
 }
 
 func main() {
@@ -37,7 +38,7 @@ func main() {
 	p, _ := queue.NewKafkaProducer(kCfg)
 	c, _ := queue.NewKafkaConsumer(kCfg)
 	q := &queue.Queue{Producer: p, Consumer: c}
-	db := model.NewDB(cfg.DBHost, cfg.DBName, cfg.DBUser, cfg.DBPass, false)
+	db := model.NewDB(cfg.DBHost, cfg.DBName, cfg.DBUser, cfg.DBPass, cfg.DBSSLMode)
 
 	r := rest.NewRestServer(db, q)
 
